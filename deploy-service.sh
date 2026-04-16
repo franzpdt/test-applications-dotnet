@@ -43,21 +43,21 @@ if systemctl is-active --quiet "${APP_NAME}.service" 2>/dev/null; then
 fi
 
 # Kill any leftover processes in case the stop wasn't clean
-if pgrep -f "${DEPLOY_DIR}/TaskApi" &>/dev/null; then
+if pgrep -f "dotnet ${DEPLOY_DIR}/TaskApi.dll" &>/dev/null; then
     echo "Killing leftover TaskApi processes..."
-    pkill -f "${DEPLOY_DIR}/TaskApi" || true
+    pkill -f "dotnet ${DEPLOY_DIR}/TaskApi.dll" || true
     sleep 1
     # Force kill if still running
-    if pgrep -f "${DEPLOY_DIR}/TaskApi" &>/dev/null; then
+    if pgrep -f "dotnet ${DEPLOY_DIR}/TaskApi.dll" &>/dev/null; then
         echo "Force killing remaining processes..."
-        pkill -9 -f "${DEPLOY_DIR}/TaskApi" || true
+        pkill -9 -f "dotnet ${DEPLOY_DIR}/TaskApi.dll" || true
         sleep 1
     fi
 fi
 
 # Publish the application
 echo "Publishing application to ${DEPLOY_DIR}..."
-dotnet publish "${PROJECT_FILE}" -c Release -o "${DEPLOY_DIR}"
+dotnet publish "${PROJECT_FILE}" -c Debug -o "${DEPLOY_DIR}"
 
 # Set ownership and permissions
 echo "Setting permissions..."
@@ -92,7 +92,7 @@ Type=exec
 User=${SERVICE_USER}
 Group=${SERVICE_USER}
 WorkingDirectory=${DEPLOY_DIR}
-ExecStart=${DEPLOY_DIR}/TaskApi
+ExecStart=/usr/bin/dotnet ${DEPLOY_DIR}/TaskApi.dll
 ExecStopPost=/bin/sh -c 'while ss -tlnp | grep -q ":${APP_PORT} "; do sleep 0.5; done'
 KillMode=control-group
 TimeoutStopSec=15

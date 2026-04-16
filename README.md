@@ -57,6 +57,16 @@ The interactive API documentation is served at the root URL: `http://localhost:<
 
 ## Deployment
 
+### Install Dependencies
+
+Install the .NET SDK and restore NuGet packages (requires `sudo` on Linux):
+
+```bash
+sudo ./install-dependencies.sh
+```
+
+Installs the .NET 10 SDK to `/usr/share/dotnet` (Linux) or via Homebrew (macOS) and runs `dotnet restore`.
+
 ### Local — bash script
 
 ```bash
@@ -98,3 +108,45 @@ The manifest in `deployment.yaml` creates:
 - A **ClusterIP Service** exposing port 80 → container port 5000
 
 To expose the API externally, change the `Service` type to `LoadBalancer` or add an `Ingress` resource.
+
+### Deploy as a systemd Service
+
+Deploy the API as a systemd service listening on port 80 (requires `sudo`, Linux only):
+
+```bash
+sudo ./deploy-service.sh
+```
+
+This will:
+- Create a dedicated `task-api` system user
+- Publish the app to `/var/www/task-api`
+- Create log directory at `/var/log/task-api`
+- Install and start a systemd unit (`task-api.service`)
+
+Extra environment variables can be added via `service.environment.variables.txt` (one `Environment=KEY=VALUE` per line).
+
+Manage the service:
+```bash
+sudo systemctl status task-api
+sudo systemctl restart task-api
+sudo systemctl stop task-api
+sudo journalctl -u task-api -f
+```
+
+### Deploy the API Caller
+
+Deploy a background service that calls all API endpoints every 10 seconds:
+
+```bash
+# Default target: http://localhost:80
+sudo ./deploy-api-caller.sh
+
+# Custom target
+sudo ./deploy-api-caller.sh http://localhost:5000
+```
+
+Run the caller interactively instead:
+```bash
+./call-apis.sh                        # default http://localhost:80
+./call-apis.sh http://localhost:5000   # custom URL
+```

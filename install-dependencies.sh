@@ -36,17 +36,14 @@ install_dotnet_via_script() {
     tmpdir="$(mktemp -d)"
     curl -fsSL https://dot.net/v1/dotnet-install.sh -o "${tmpdir}/dotnet-install.sh"
     chmod +x "${tmpdir}/dotnet-install.sh"
-    "${tmpdir}/dotnet-install.sh" --channel "${DOTNET_VERSION}"
+    "${tmpdir}/dotnet-install.sh" --channel "${DOTNET_VERSION}" --install-dir /usr/share/dotnet
     rm -rf "${tmpdir}"
 
-    # Add to PATH for current session
-    export DOTNET_ROOT="${HOME}/.dotnet"
-    export PATH="${DOTNET_ROOT}:${PATH}"
+    # Symlink so dotnet is on PATH system-wide
+    ln -sf /usr/share/dotnet/dotnet /usr/local/bin/dotnet
 
-    echo ""
-    echo "Add the following to your shell profile (~/.bashrc, ~/.zshrc, etc.):"
-    echo "  export DOTNET_ROOT=\"\${HOME}/.dotnet\""
-    echo "  export PATH=\"\${DOTNET_ROOT}:\${PATH}\""
+    export DOTNET_ROOT="/usr/share/dotnet"
+    export PATH="${DOTNET_ROOT}:${PATH}"
 }
 
 case "$OS" in

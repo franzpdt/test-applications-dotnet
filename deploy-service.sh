@@ -36,7 +36,15 @@ if ! command -v dotnet &>/dev/null; then
 fi
 
 DOTNET_PATH="$(command -v dotnet)"
-echo "Using dotnet at: ${DOTNET_PATH}"
+DOTNET_ROOT_DIR="${DOTNET_ROOT:-$(dirname "${DOTNET_PATH}")}"
+echo "Using dotnet at: ${DOTNET_PATH} (DOTNET_ROOT: ${DOTNET_ROOT_DIR})"
+
+# Make dotnet accessible system-wide if installed in a user home directory
+if [[ "${DOTNET_PATH}" == /home/* || "${DOTNET_PATH}" == /root/* ]]; then
+    echo "Symlinking dotnet to /usr/local/bin for system-wide access..."
+    ln -sf "${DOTNET_PATH}" /usr/local/bin/dotnet
+    DOTNET_PATH=/usr/local/bin/dotnet
+fi
 
 # Create service user if it doesn't exist
 if ! id -u "${SERVICE_USER}" &>/dev/null; then
@@ -109,7 +117,7 @@ ExecStart=${DOTNET_PATH} ${DEPLOY_DIR}/TaskApi.dll
 ExecStopPost=/bin/sh -c 'while ss -tlnp | grep -q ":${APP_PORT} "; do sleep 0.5; done'
 KillMode=control-group
 TimeoutStopSec=15
-Environment=DOTNET_ROOT=${DOTNET_ROOT:-$(dirname "${DOTNET_PATH}")}
+Environment=DOTNET_ROOT=${DOTNET_ROOT_DIR}
 Environment=DOTNET_ENVIRONMENT=Production
 Environment=APP_PORT=${APP_PORT}
 Environment=APP_LOG_PATH=${LOG_DIR}

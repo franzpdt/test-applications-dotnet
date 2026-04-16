@@ -36,6 +36,25 @@ echo "Creating directories..."
 mkdir -p "${DEPLOY_DIR}"
 mkdir -p "${LOG_DIR}"
 
+# Stop the service if it's already running (binary can't be overwritten while in use)
+if systemctl is-active --quiet "${APP_NAME}.service" 2>/dev/null; then
+    echo "Stopping running ${APP_NAME} service..."
+    systemctl stop "${APP_NAME}.service"
+fi
+
+# Kill any leftover processes in case the stop wasn't clean
+if pgrep -f "${DEPLOY_DIR}/TaskApi" &>/dev/null; then
+    echo "Killing leftover TaskApi processes..."
+    pkill -f "${DEPLOY_DIR}/TaskApi" || true
+    sleep 1
+    # Force kill if still running
+    if pgrep -f "${DEPLOY_DIR}/TaskApi" &>/dev/null; then
+        echo "Force killing remaining processes..."
+        pkill -9 -f "${DEPLOY_DIR}/TaskApi" || true
+        sleep 1
+    fi
+fi
+
 # Publish the application
 echo "Publishing application to ${DEPLOY_DIR}..."
 dotnet publish "${PROJECT_FILE}" -c Release -o "${DEPLOY_DIR}"

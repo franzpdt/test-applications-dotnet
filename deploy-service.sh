@@ -35,6 +35,9 @@ if ! command -v dotnet &>/dev/null; then
     exit 1
 fi
 
+DOTNET_PATH="$(command -v dotnet)"
+echo "Using dotnet at: ${DOTNET_PATH}"
+
 # Create service user if it doesn't exist
 if ! id -u "${SERVICE_USER}" &>/dev/null; then
     echo "Creating service user '${SERVICE_USER}'..."
@@ -102,10 +105,11 @@ Type=exec
 User=${SERVICE_USER}
 Group=${SERVICE_USER}
 WorkingDirectory=${DEPLOY_DIR}
-ExecStart=/usr/bin/dotnet ${DEPLOY_DIR}/TaskApi.dll
+ExecStart=${DOTNET_PATH} ${DEPLOY_DIR}/TaskApi.dll
 ExecStopPost=/bin/sh -c 'while ss -tlnp | grep -q ":${APP_PORT} "; do sleep 0.5; done'
 KillMode=control-group
 TimeoutStopSec=15
+Environment=DOTNET_ROOT=${DOTNET_ROOT:-$(dirname "${DOTNET_PATH}")}
 Environment=DOTNET_ENVIRONMENT=Production
 Environment=APP_PORT=${APP_PORT}
 Environment=APP_LOG_PATH=${LOG_DIR}

@@ -19,14 +19,7 @@ install_dotnet_linux() {
 
     case "$DISTRO" in
         ubuntu|debian)
-            # Install the Microsoft package repository
-            sudo apt-get update -o Acquire::Retries=3 --fix-missing || true
-            sudo apt-get install -y wget apt-transport-https
-            wget "https://packages.microsoft.com/config/${DISTRO}/$(lsb_release -rs)/packages-microsoft-prod.deb" -O packages-microsoft-prod.deb
-            sudo dpkg -i packages-microsoft-prod.deb
-            rm packages-microsoft-prod.deb
-            sudo apt-get update -o Acquire::Retries=3 --fix-missing || true
-            sudo apt-get install -y "dotnet-sdk-${DOTNET_VERSION}"
+            install_dotnet_via_script
             ;;
         fedora|rhel|centos)
             sudo dnf install -y "dotnet-sdk-${DOTNET_VERSION}"

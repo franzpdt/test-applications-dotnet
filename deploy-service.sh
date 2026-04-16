@@ -69,11 +69,14 @@ Description=Task API (.NET)
 After=network.target
 
 [Service]
-Type=notify
+Type=exec
 User=${SERVICE_USER}
 Group=${SERVICE_USER}
 WorkingDirectory=${DEPLOY_DIR}
 ExecStart=${DEPLOY_DIR}/TaskApi
+ExecStopPost=/bin/sh -c 'while ss -tlnp | grep -q ":${APP_PORT} "; do sleep 0.5; done'
+KillMode=control-group
+TimeoutStopSec=15
 Environment=DOTNET_ENVIRONMENT=Production
 Environment=APP_PORT=${APP_PORT}
 Environment=APP_LOG_PATH=${LOG_DIR}

@@ -77,8 +77,7 @@ ExecStart=${DEPLOY_DIR}/TaskApi
 Environment=DOTNET_ENVIRONMENT=Production
 Environment=APP_PORT=${APP_PORT}
 Environment=APP_LOG_PATH=${LOG_DIR}
-EXTRA_ENV_VARS
-AmbientCapabilities=CAP_NET_BIND_SERVICE
+${EXTRA_ENV_LINES}AmbientCapabilities=CAP_NET_BIND_SERVICE
 Restart=on-failure
 RestartSec=5
 KillSignal=SIGINT

@@ -36,7 +36,7 @@ install_dotnet_linux() {
             install_dotnet_via_script
             ;;
     esac
-}b
+}
 
 install_dotnet_via_script() {
     echo "Installing .NET SDK ${DOTNET_VERSION} via dotnet-install script..."

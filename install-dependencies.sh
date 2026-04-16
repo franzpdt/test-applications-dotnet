@@ -68,6 +68,17 @@ case "$OS" in
         ;;
 esac
 
+# Ensure dotnet is on PATH (dotnet-install.sh installs to ~/.dotnet)
+if ! command -v dotnet &>/dev/null; then
+    for d in "${HOME}/.dotnet" "/root/.dotnet" "/usr/share/dotnet" "/usr/local/share/dotnet"; do
+        if [[ -x "${d}/dotnet" ]]; then
+            export DOTNET_ROOT="${d}"
+            export PATH="${d}:${PATH}"
+            break
+        fi
+    done
+fi
+
 echo ""
 echo "=== Verifying installation ==="
 if command -v dotnet &>/dev/null; then

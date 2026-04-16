@@ -19,7 +19,17 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-# Verify dotnet is available
+# Verify dotnet is available (check common install paths if not on PATH)
+if ! command -v dotnet &>/dev/null; then
+    for d in /usr/share/dotnet /usr/local/share/dotnet /home/*/.dotnet /root/.dotnet "${HOME}/.dotnet"; do
+        if [[ -x "${d}/dotnet" ]]; then
+            export DOTNET_ROOT="${d}"
+            export PATH="${d}:${PATH}"
+            break
+        fi
+    done
+fi
+
 if ! command -v dotnet &>/dev/null; then
     echo "Error: 'dotnet' not found on PATH. Install the .NET SDK first."
     exit 1

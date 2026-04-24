@@ -6,13 +6,13 @@ COPY TaskApi/TaskApi.csproj TaskApi/
 RUN dotnet restore TaskApi/TaskApi.csproj
 
 COPY TaskApi/ TaskApi/
-RUN dotnet publish TaskApi/TaskApi.csproj -c Debug --no-restore -o /app/publish
+RUN dotnet publish TaskApi/TaskApi.csproj -c Debug -o /app/publish
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
-RUN adduser --disabled-password --no-create-home appuser && \
+RUN useradd --no-create-home --shell /bin/false appuser && \
     mkdir -p /app/logs && chown -R appuser:appuser /app
 
 COPY --from=build --chown=appuser:appuser /app/publish .

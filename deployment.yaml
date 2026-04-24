@@ -16,8 +16,8 @@ spec:
     spec:
       containers:
         - name: task-api
-          image: task-api:latest
-          imagePullPolicy: IfNotPresent
+          image: 684398786625.dkr.ecr.us-east-1.amazonaws.com/franzplatzer/test-applications-dotnet:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 5000
           env:
@@ -57,4 +57,42 @@ spec:
     - name: http
       port: 80
       targetPort: 5000
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-api-caller
+  labels:
+    app: task-api-caller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: task-api-caller
+  template:
+    metadata:
+      labels:
+        app: task-api-caller
+    spec:
+      containers:
+        - name: task-api-caller
+          image: 684398786625.dkr.ecr.us-east-1.amazonaws.com/franzplatzer/test-applications-dotnet-caller:latest
+          imagePullPolicy: Always
+          env:
+            - name: BASE_URL
+              value: http://task-api
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: task-api-caller
+  labels:
+    app: task-api-caller
+spec:
+  selector:
+    app: task-api-caller
+  ports:
+    - name: http
+      port: 80
   type: ClusterIP

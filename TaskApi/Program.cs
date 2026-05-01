@@ -23,22 +23,9 @@ try
     builder.Services.AddDbContext<TaskDbContext>(options =>
         options.UseInMemoryDatabase("TaskDb"));
 
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen(c =>
-    {
-        c.SwaggerDoc("v1", new() { Title = "Task API", Version = "v1" });
-    });
-
     builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
     var app = builder.Build();
-
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Task API v1");
-        c.RoutePrefix = string.Empty; // Serve Swagger UI at the root URL
-    });
 
     // Seed database
     using (var scope = app.Services.CreateScope())
@@ -125,9 +112,7 @@ try
         }
         Log.Information("CPU stress finished after {Seconds}s ({Iterations} iterations)", seconds, iterations);
         return Results.Ok(new { seconds, iterations });
-    })
-    .WithName("CpuStress")
-    .WithSummary("Saturates one CPU core for the given number of seconds (default: 10, max: 300)");
+    });
 
     // Memory stress endpoint
     app.MapGet("/api/stress/memory", async (int seconds = 10) =>
@@ -149,9 +134,7 @@ try
         var totalMb = chunks.Count * 10;
         Log.Information("Memory stress finished after {Seconds}s ({TotalMb} MB allocated)", seconds, totalMb);
         return Results.Ok(new { seconds, allocatedMb = totalMb });
-    })
-    .WithName("MemoryStress")
-    .WithSummary("Continuously allocates memory for the given number of seconds (default: 10, max: 300)");
+    });
 
     app.Run();
 }

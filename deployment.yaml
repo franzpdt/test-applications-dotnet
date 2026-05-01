@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: task-api
-          image: 684398786625.dkr.ecr.us-east-1.amazonaws.com/franzplatzer/test-applications-dotnet:latest
+          image: <registry>/test-applications-dotnet:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 5000

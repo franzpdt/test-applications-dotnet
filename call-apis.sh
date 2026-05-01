@@ -6,6 +6,12 @@ INTERVAL=10
 
 echo "Calling Task API at ${BASE_URL} every ${INTERVAL}s (Ctrl+C to stop)"
 
+echo "Waiting for API to be ready..."
+until curl -sf "${BASE_URL}/api/tasks" -o /dev/null; do
+    sleep 2
+done
+echo "API is ready."
+
 while true; do
     echo ""
     echo "=== $(date '+%Y-%m-%d %H:%M:%S') ==="

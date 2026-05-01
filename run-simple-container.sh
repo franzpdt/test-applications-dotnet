@@ -42,6 +42,7 @@ echo "==> Starting API container: ${API_CONTAINER}"
 "${CONTAINER_CMD}" run -d \
     --name "${API_CONTAINER}" \
     --network "${NETWORK}" \
+    --restart=always \
     -p 5000:5000 \
     "${API_IMAGE}"
 
@@ -50,6 +51,7 @@ echo "==> Starting caller container: ${CALLER_CONTAINER}"
 "${CONTAINER_CMD}" run -d \
     --name "${CALLER_CONTAINER}" \
     --network "${NETWORK}" \
+    --restart=always \
     -e BASE_URL="http://${API_CONTAINER}:5000" \
     "${CALLER_IMAGE}"
 
